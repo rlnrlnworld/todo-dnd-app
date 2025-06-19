@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -23,7 +25,12 @@ jobs:
         run: npm ci
 
       - name: Check commit message
-        run: npx --no-install commitlint --from=HEAD~1 --to=HEAD
+        run: |
+          if [ $(git rev-list --count HEAD) -gt 1 ]; then
+            npx --no-install commitlint --from=HEAD~1 --to=HEAD
+          else
+            echo "First commit, skipping commitlint"
+          fi
 
       - name: Run tests
         run: npm test
